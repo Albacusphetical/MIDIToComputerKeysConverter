@@ -144,7 +144,7 @@ extends JFrame {
         this.setVisible(true);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/icongrey.png")).getImage());
         this.setResizable(true);
-        this.setTitle("MIDI to Computer Keys Converter - v0.8 alpha");
+        this.setTitle("MIDI to Computer Keys Converter 2023 - v0.1");
         this.setDefaultCloseOperation(3);
         this.contentPane = new JPanel();
         this.contentPane.setBackground(new Color(0x585858));
