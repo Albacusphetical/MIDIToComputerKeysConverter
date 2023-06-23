@@ -740,6 +740,8 @@ extends JFrame {
                         dialogTrackImport.setVisible(true);
                         if (dialogTrackImport.getSelectedButton() == 1) {
                             JFrameMIDIPianoSheetCreator.this.progressBar.setIndeterminate(false);
+                            spinnerSpeed_1.setValue(0);
+
                             System.out.println();
                             System.out.println("Loading " + JFrameMIDIPianoSheetCreator.this.openFileName);
                             if (!dialogTrackImport.isCustomMeasure()) {
