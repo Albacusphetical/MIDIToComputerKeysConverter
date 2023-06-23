@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component LANGUAGE_LEVEL="JDK_17" inherit-compiler-output="true" inheritJdk="true">
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$"/>
+	<levels>
+		<level name="pushing.pixels.radiance.theming" value="project"/>
+		<level name="google.guava" value="project"/>
+	</levels>
+</component>
