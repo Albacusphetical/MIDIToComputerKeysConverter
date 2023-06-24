@@ -2,7 +2,7 @@ MIDI to Computer Keys Converter - [Download](https://minhaskamal.github.io/DownG
 ===============================
 Creates music sheets that can be played with a computer keyboard, which can be used in games or programs with virtual piano such as Roblox, PianoRhythm, Garry's Mod, and more.
 
-## Release Notes - v0.2
+## Whats New?
 
 - Added transpose function
 - Added screenshot function
