@@ -23,10 +23,12 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -57,6 +59,7 @@ extends JFrame {
     private JSpinner spinnerSpeed;
     private JLabel lblVolume;
     private JSlider sliderVolume;
+    private JButton btnScreenshot;
     private JButton btnPlay;
     private JButton btnStop;
     private static DialogAbout dialogAbout;
@@ -145,8 +148,22 @@ extends JFrame {
         this.spinnerSpeed.setModel(new SpinnerNumberModel(new Float(1.0f), new Float(0.1), null, new Float(0.1)));
         this.spinnerSpeed.setEnabled(false);
         GroupLayout gl_contentPane = new GroupLayout(this.contentPane);
-        gl_contentPane.setHorizontalGroup(gl_contentPane.createParallelGroup(GroupLayout.Alignment.TRAILING).addGroup(gl_contentPane.createSequentialGroup().addGroup(gl_contentPane.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(layeredPane, GroupLayout.Alignment.LEADING, -1, 449, 32767).addComponent(this.progressBar, -1, 449, 32767)).addGap(0)));
-        gl_contentPane.setVerticalGroup(gl_contentPane.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(GroupLayout.Alignment.TRAILING, gl_contentPane.createSequentialGroup().addComponent(layeredPane, -2, 492, 32767).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(this.progressBar, -2, 20, -2).addGap(9)));
+        gl_contentPane.setHorizontalGroup(
+        	gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        		.addGroup(gl_contentPane.createSequentialGroup()
+        			.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        				.addComponent(layeredPane, Alignment.LEADING)
+        				.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE))
+        			.addGap(0))
+        );
+        gl_contentPane.setVerticalGroup(
+        	gl_contentPane.createParallelGroup(Alignment.TRAILING)
+        		.addGroup(gl_contentPane.createSequentialGroup()
+        			.addComponent(layeredPane, GroupLayout.PREFERRED_SIZE, 492, Short.MAX_VALUE)
+        			.addGap(5)
+        			.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+        			.addGap(9))
+        );
 
         lblTranspose = new JLabel("Transpose:");
 
@@ -169,41 +186,48 @@ extends JFrame {
                 tpKeyEditor.setCaretPosition(0);
             }
         });
+
+
         GroupLayout gl_layeredPane = new GroupLayout(layeredPane);
         gl_layeredPane.setHorizontalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.LEADING)
         		.addGroup(gl_layeredPane.createSequentialGroup()
-        			.addGap(4)
         			.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
-        				.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
         				.addGroup(gl_layeredPane.createSequentialGroup()
+        					.addGap(4)
         					.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
+        						.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
         						.addGroup(gl_layeredPane.createSequentialGroup()
-        							.addPreferredGap(ComponentPlacement.RELATED)
-        							.addComponent(btnPlay, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
-        							.addPreferredGap(ComponentPlacement.RELATED)
-        							.addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
-        							.addGap(15)
-        							.addComponent(lblTranspose)
-        							.addPreferredGap(ComponentPlacement.RELATED)
-        							.addComponent(spinnerSpeed_1, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-        							.addPreferredGap(ComponentPlacement.UNRELATED)
-        							.addComponent(sliderVolume, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
-        							.addGap(15))
-        						.addGroup(Alignment.TRAILING, gl_layeredPane.createSequentialGroup()
-        							.addComponent(lblVolume)
-        							.addGap(41)))
-        					.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
-        						.addComponent(lblSpeed, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-        				.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE))
+        							.addGroup(gl_layeredPane.createParallelGroup(Alignment.TRAILING)
+        								.addGroup(gl_layeredPane.createSequentialGroup()
+        									.addComponent(btnPlay, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
+        									.addPreferredGap(ComponentPlacement.RELATED)
+        									.addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
+        									.addGap(15)
+        									.addComponent(lblTranspose)
+        									.addPreferredGap(ComponentPlacement.RELATED)
+        									.addComponent(spinnerSpeed_1, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+        									.addPreferredGap(ComponentPlacement.UNRELATED)
+        									.addComponent(sliderVolume, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+        									.addGap(15))
+        								.addGroup(gl_layeredPane.createSequentialGroup()
+        									.addComponent(lblVolume)
+        									.addGap(41)))
+        							.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
+        								.addComponent(lblSpeed, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
+        								.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        						.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)))
+        				.addGroup(gl_layeredPane.createSequentialGroup()
+        					.addContainerGap()
+        					.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)))
         			.addContainerGap())
         );
         gl_layeredPane.setVerticalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.TRAILING)
         		.addGroup(gl_layeredPane.createSequentialGroup()
-        			.addGap(5)
-        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+        			.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+        			.addGap(4)
+        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
         			.addGap(8)
         			.addComponent(sliderTime, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
         			.addPreferredGap(ComponentPlacement.RELATED)
@@ -243,8 +267,33 @@ extends JFrame {
     }
 
     private void initButtons() {
+        this.initButtonScreenshot();
         this.initButtonPlay();
         this.initButtonStop();
+    }
+
+    private void initButtonScreenshot() {
+        this.btnScreenshot = new JButton("");
+        btnScreenshot.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // take image of the notes
+                int textPaneWidth = tpKeyEditor.getWidth();
+                int textPaneHeight = tpKeyEditor.getHeight();
+                BufferedImage bufferedImage = new BufferedImage(textPaneWidth, textPaneHeight, BufferedImage.TYPE_INT_RGB);
+                tpKeyEditor.print(bufferedImage.getGraphics());
+
+                File out = new File("test.png");
+                try {
+                    ImageIO.write(bufferedImage, "png", out);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        btnScreenshot.setIcon(new ImageIcon(getClass().getResource("/images/camera.png")));
+        btnScreenshot.setForeground(Color.GRAY);
+        btnScreenshot.setEnabled(false);
+        btnScreenshot.setBackground(Color.GRAY);
     }
 
     private void initButtonPlay() {
@@ -452,9 +501,11 @@ extends JFrame {
         this.spKeyEditor.setViewportView(this.tpKeyEditor);
         this.wordWrapOn();
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, this.currentFontSize));
-        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023! (v0.1)\r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nPlay and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ )\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
-                "\r\n------------------------------------------------------\r\n\r\nRelease Notes\r\n\r\n" +
-                "● Added Transpose function" + "\r\n● Adjusted theme color to improve readability of coloured notes."
+        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023! (v0.1)\r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nCamera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ )\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
+                "\r\n------------------------------------------------------\r\n\r\n2023 version includes:\r\n\r\n" +
+                "● Transpose function" +
+                "\r\n● Adjusted theme color to make coloured notes easier to read." +
+                "\r\n● Filtering file results as you type when searching to select your midi."
         );
         this.tpKeyEditor.setCaretPosition(0);
     }
@@ -801,6 +852,7 @@ extends JFrame {
                 JFrameMIDIPianoSheetCreator.this.midiPlayer = new MIDIPlayer(new File(JFrameMIDIPianoSheetCreator.this.dirFileName));
                 JFrameMIDIPianoSheetCreator.this.midiPlayer.setVolume(JFrameMIDIPianoSheetCreator.this.sliderVolume.getValue());
                 JFrameMIDIPianoSheetCreator.this.midiPlayer.setInstrument(JFrameMIDIPianoSheetCreator.this.currentPatchNum);
+                JFrameMIDIPianoSheetCreator.this.btnScreenshot.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.btnPlay.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.btnPlay.setText("Play");
                 JFrameMIDIPianoSheetCreator.this.btnPlay.setIcon(new ImageIcon(getClass().getResource("/images/control_play_blue.png")));
