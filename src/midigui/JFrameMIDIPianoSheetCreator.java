@@ -35,6 +35,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -276,17 +277,77 @@ extends JFrame {
         this.btnScreenshot = new JButton("");
         btnScreenshot.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // take image of the notes
-                int textPaneWidth = tpKeyEditor.getWidth();
-                int textPaneHeight = tpKeyEditor.getHeight();
-                BufferedImage bufferedImage = new BufferedImage(textPaneWidth, textPaneHeight, BufferedImage.TYPE_INT_RGB);
-                tpKeyEditor.print(bufferedImage.getGraphics());
+                JFrameMIDIPianoSheetCreator.this.tpKeyEditor.setEnabled(true);
+                JFileChooser fileChooserDialogueSave = new JFileChooser(JFrameMIDIPianoSheetCreator.this.lastDirectory){
 
-                File out = new File("test.png");
-                try {
-                    ImageIO.write(bufferedImage, "png", out);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                    @Override
+                    public void approveSelection() {
+                        File f = this.getSelectedFile();
+                        if (f.exists() && this.getDialogType() == 1) {
+                            Toolkit.getDefaultToolkit().beep();
+                            int result = JOptionPane.showConfirmDialog(this, "The file exists, overwrite?", "Existing file", 0);
+                            switch (result) {
+                                case 0: {
+                                    super.approveSelection();
+                                    return;
+                                }
+                                case 2: {
+                                    this.cancelSelection();
+                                    return;
+                                }
+                            }
+                            return;
+                        }
+                        super.approveSelection();
+                    }
+                };
+                JTextField fileChooserTextField =  (JTextField) ((JPanel) ((JPanel) fileChooserDialogueSave.getComponent(3)).getComponent(0)).getComponent(1);
+                final FileExtensionFilter[] fileFilter = {new FileExtensionFilter(true, false, fileChooserTextField)};
+
+                fileChooserTextField.addKeyListener(new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        // new filter any time the text changes
+                        fileChooserDialogueSave.resetChoosableFileFilters();
+                        fileFilter[0] = new FileExtensionFilter(false, true, fileChooserTextField);
+                        fileChooserDialogueSave.setFileFilter(fileFilter[0]);
+                    }
+                });
+
+                fileFilter[0] = new FileExtensionFilter(false, true, fileChooserTextField);
+                fileChooserDialogueSave.setFileFilter(fileFilter[0]);
+                fileChooserDialogueSave.setAcceptAllFileFilterUsed(false);
+                fileChooserDialogueSave.setPreferredSize(new Dimension(575, 495));
+                String noExtensionName = JFrameMIDIPianoSheetCreator.this.openFileName.substring(0, JFrameMIDIPianoSheetCreator.this.openFileName.length() - 4);
+                fileChooserDialogueSave.setSelectedFile(new File(noExtensionName));
+                int returnVal = fileChooserDialogueSave.showSaveDialog(JFrameMIDIPianoSheetCreator.this);
+                if (returnVal == 0) {
+                    File file = fileChooserDialogueSave.getSelectedFile();
+                    String file_name = file.toString();
+                    if (!file_name.endsWith(".png") || !file_name.endsWith(".jpg")) {
+                        file_name = String.valueOf(file_name) + ".png";
+                        file = new File(file_name);
+                    }
+                    // take image of the notes
+                    int textPaneWidth = tpKeyEditor.getWidth();
+                    int textPaneHeight = tpKeyEditor.getHeight();
+                    BufferedImage bufferedImage = new BufferedImage(textPaneWidth, textPaneHeight, BufferedImage.TYPE_INT_RGB);
+                    tpKeyEditor.print(bufferedImage.getGraphics());
+
+                    try {
+                        ImageIO.write(bufferedImage, "png", file);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -694,9 +755,32 @@ extends JFrame {
                         super.approveSelection();
                     }
                 };
-                FileExtensionFilter fileFilter = new FileExtensionFilter(false);
-                fileChooserDialogueSave.addChoosableFileFilter(fileFilter);
-                fileChooserDialogueSave.setFileFilter(fileFilter);
+
+                JTextField fileChooserTextField =  (JTextField) ((JPanel) ((JPanel) fileChooserDialogueSave.getComponent(3)).getComponent(0)).getComponent(1);
+                final FileExtensionFilter[] fileFilter = {new FileExtensionFilter(true, false, fileChooserTextField)};
+
+                fileChooserTextField.addKeyListener(new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        // new filter any time the text changes
+                        fileChooserDialogueSave.resetChoosableFileFilters();
+                        fileFilter[0] = new FileExtensionFilter(false, false, fileChooserTextField);
+                        fileChooserDialogueSave.setFileFilter(fileFilter[0]);
+                    }
+                });
+
+                fileFilter[0] = new FileExtensionFilter(false);
+                fileChooserDialogueSave.addChoosableFileFilter(fileFilter[0]);
+                fileChooserDialogueSave.setFileFilter(fileFilter[0]);
                 fileChooserDialogueSave.setAcceptAllFileFilterUsed(true);
                 fileChooserDialogueSave.setPreferredSize(new Dimension(575, 495));
                 String noExtensionName = JFrameMIDIPianoSheetCreator.this.openFileName.substring(0, JFrameMIDIPianoSheetCreator.this.openFileName.length() - 4);
@@ -736,7 +820,7 @@ extends JFrame {
                 }
                 JFileChooser fileChooserOpenDialogue = new JFileChooser(JFrameMIDIPianoSheetCreator.this.lastDirectory);
                 JTextField fileChooserTextField =  (JTextField) ((JPanel) ((JPanel) fileChooserOpenDialogue.getComponent(3)).getComponent(0)).getComponent(1);
-                final FileExtensionFilter[] fileFilter = {new FileExtensionFilter(true, fileChooserTextField)};
+                final FileExtensionFilter[] fileFilter = {new FileExtensionFilter(true, false, fileChooserTextField)};
 
                 fileChooserTextField.addKeyListener(new KeyListener() {
                     @Override
@@ -751,8 +835,8 @@ extends JFrame {
                     @Override
                     public void keyReleased(KeyEvent e) {
                         // new filter any time the text changes
-                        fileFilter[0] = new FileExtensionFilter(true, fileChooserTextField);
-                        fileChooserOpenDialogue.addChoosableFileFilter(fileFilter[0]);
+                        fileChooserOpenDialogue.resetChoosableFileFilters();
+                        fileFilter[0] = new FileExtensionFilter(true, false, fileChooserTextField);
                         fileChooserOpenDialogue.setFileFilter(fileFilter[0]);
                     }
                 });

@@ -11,16 +11,18 @@ import javax.swing.filechooser.FileFilter;
 
 public class FileExtensionFilter
 extends FileFilter {
-    private static boolean isMIDI = false;
+    private boolean isMIDI = false;
+    private boolean isImage = false;
     private static String fileChooserText = "";
 
-    public FileExtensionFilter(boolean isMIDI, JTextField fileChooserTextField) {
-        FileExtensionFilter.isMIDI = isMIDI;
+    public FileExtensionFilter(boolean isMIDI, boolean isImage, JTextField fileChooserTextField) {
+        this.isMIDI = isMIDI;
+        this.isImage = isImage;
         FileExtensionFilter.fileChooserText = fileChooserTextField.getText().toLowerCase();
     }
 
     public FileExtensionFilter(boolean isMIDI) {
-        FileExtensionFilter.isMIDI = isMIDI;
+        this.isMIDI = isMIDI;
         FileExtensionFilter.fileChooserText = "";
     }
 
@@ -37,6 +39,9 @@ extends FileFilter {
             if (isMIDI) {
                 return (extension.equals("mid") || extension.equals("midi")) && fileNameFilter;
             }
+            if (isImage) {
+                return (extension.equals("png") || extension.equals("jpg")) && fileNameFilter;
+            }
             return extension.equals("txt") && fileNameFilter;
         }
         return false;
@@ -44,8 +49,13 @@ extends FileFilter {
 
     @Override
     public String getDescription() {
-        String x = null;
-        x = isMIDI ? "MIDI File" : "Text File";
+        String x = "Text File";
+        if (isMIDI) {
+            x = "MIDI File";
+        }
+        if (isImage) {
+            x = "Images";
+        }
         return x;
     }
 }
