@@ -46,6 +46,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class JFrameMIDIPianoSheetCreator
 extends JFrame {
+    private static String version = "v0.2";
     private static JFrame frameHolder = null;
     public static JTextPane tpKeyEditor;
     public static MIDIParser midiParser = null;
@@ -124,7 +125,7 @@ extends JFrame {
         this.setVisible(true);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/icongrey.png")).getImage());
         this.setResizable(true);
-        this.setTitle("MIDI to Computer Keys Converter 2023 - v0.1");
+        this.setTitle("MIDI to Computer Keys Converter 2023 - " + version);
         this.setDefaultCloseOperation(3);
         this.contentPane = new JPanel();
         this.contentPane.setBackground(new Color(0x585858));
@@ -562,11 +563,12 @@ extends JFrame {
         this.spKeyEditor.setViewportView(this.tpKeyEditor);
         this.wordWrapOn();
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, this.currentFontSize));
-        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023! (v0.1)\r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nCamera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ )\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
-                "\r\n------------------------------------------------------\r\n\r\n2023 version includes:\r\n\r\n" +
+        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023!" + " (" + version + ")" + " \r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nCamera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ )\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
+                "\r\n------------------------------------------------------\r\n\r\nWhats New:\r\n\r\n" +
                 "● Transpose function" +
-                "\r\n● Adjusted theme color to make coloured notes easier to read." +
-                "\r\n● Filtering file results as you type when searching to select your midi."
+                "\r\n● Screenshot function" +
+                "\r\n● Filtering file results as you type when searching to select your midi." +
+                "\r\n● Adjusted theme color to make coloured notes easier to read."
         );
         this.tpKeyEditor.setCaretPosition(0);
     }
