@@ -251,11 +251,12 @@ public class MIDIParser {
     }
 
     public void changeTranspose(TreeMap<Long, ArrayList<Integer>> rawData, Integer transpose) {
-        this.currentMeasure = this.measureLength; // from the top
+        // reset
+        this.currentMeasure = this.measureLength;
         this.eventTriggerNote.clear();
         this.eventTriggerTime.clear();
         this.completeNotes = "";
-//        this.completeNotes = "this is a test: transpose = " + transpose;
+
         String currentNotes = null;
         for (Map.Entry<Long, ArrayList<Integer>> entry : rawData.entrySet()) {
             currentNotes = this.convertMidiNumToKeys(entry.getValue(), transpose);
@@ -270,12 +271,8 @@ public class MIDIParser {
             this.eventTriggerNote.add(currentNotes);
         }
 
-        // done
-//        JFrameMIDIPianoSheetCreator.noteColourConverter = new NoteColourConverter(JFrameMIDIPianoSheetCreator.tpKeyEditor.getStyledDocument(), JFrameMIDIPianoSheetCreator.midiParser.getEventTriggerTime(), JFrameMIDIPianoSheetCreator.midiParser.getQuarterNote());
         if (JFrameMIDIPianoSheetCreator.dialogTrackImport.isColourise()) {
             JFrameMIDIPianoSheetCreator.tpKeyEditor.setStyledDocument(JFrameMIDIPianoSheetCreator.noteColourConverter.ColouriseNotes());
-
-
         }
     }
 

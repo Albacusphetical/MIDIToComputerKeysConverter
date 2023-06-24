@@ -21,36 +21,13 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import javax.swing.GroupLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTextPane;
-import javax.swing.LayoutStyle;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -63,7 +40,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.SwingConstants;
 
 public class JFrameMIDIPianoSheetCreator
 extends JFrame {
@@ -708,11 +684,32 @@ extends JFrame {
                     JFrameMIDIPianoSheetCreator.this.lastDirectory = String.valueOf(System.getProperty("user.home")) + "\\Desktop";
                 }
                 JFileChooser fileChooserOpenDialogue = new JFileChooser(JFrameMIDIPianoSheetCreator.this.lastDirectory);
+                JTextField fileChooserTextField =  (JTextField) ((JPanel) ((JPanel) fileChooserOpenDialogue.getComponent(3)).getComponent(0)).getComponent(1);
+                final FileExtensionFilter[] fileFilter = {new FileExtensionFilter(true, fileChooserTextField)};
+
+                fileChooserTextField.addKeyListener(new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        // new filter any time the text changes
+                        fileFilter[0] = new FileExtensionFilter(true, fileChooserTextField);
+                        fileChooserOpenDialogue.addChoosableFileFilter(fileFilter[0]);
+                        fileChooserOpenDialogue.setFileFilter(fileFilter[0]);
+                    }
+                });
+
                 fileChooserOpenDialogue.setPreferredSize(new Dimension(575, 495));
                 JFrameMIDIPianoSheetCreator.disableNewFolderButton(fileChooserOpenDialogue);
-                FileExtensionFilter fileFilter = new FileExtensionFilter(true);
-                fileChooserOpenDialogue.addChoosableFileFilter(fileFilter);
-                fileChooserOpenDialogue.setFileFilter(fileFilter);
+                fileChooserOpenDialogue.addChoosableFileFilter(fileFilter[0]);
+                fileChooserOpenDialogue.setFileFilter(fileFilter[0]);
                 fileChooserOpenDialogue.setAcceptAllFileFilterUsed(false);
                 int returnVal = fileChooserOpenDialogue.showOpenDialog(JFrameMIDIPianoSheetCreator.this);
                 File file = fileChooserOpenDialogue.getSelectedFile();
