@@ -62,9 +62,6 @@ extends NoteValue {
             long noteValue = this.eventTriggerTime.get(elementIndex + 1) - currentTrigger;
             endPosition = fullText.indexOf(space, currentPosition);
             length = endPosition - currentPosition;
-//            if (currentPosition > endPosition) {
-//                break;
-//            }
             this.sd.setCharacterAttributes(currentPosition, length, red, false);
             if (noteValue > this.octupleNote) {
                 this.sd.setCharacterAttributes(currentPosition, length, darkGreen, false);

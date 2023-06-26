@@ -5,6 +5,7 @@ Creates music sheets that can be played with a computer keyboard, which can be u
 ## Whats New?
 
 - Added transpose function
+- Added auto transpose function
 - Added screenshot function
 - Filtering of search results based on user input
 - Adjusted theme colour to improve readability of coloured notes

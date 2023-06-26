@@ -3,12 +3,7 @@
  */
 package midigui;
 
-import midigui.DialogAbout;
-import midigui.DialogColourReference;
-import midigui.DialogOnScreenKeyboard;
-import midigui.DialogOnScreenPiano;
-import midigui.DialogPreferences;
-import midigui.DialogTrackImport;
+import midiparser.AutoTransposer;
 import midiparser.MIDIParser;
 import midiparser.NoteColourConverter;
 import midiplayer.MIDIPlayer;
@@ -35,7 +30,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -46,10 +40,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class JFrameMIDIPianoSheetCreator
 extends JFrame {
-    private static String version = "v0.2";
+    private static String version = "v0.3";
     private static JFrame frameHolder = null;
     public static JTextPane tpKeyEditor;
     public static MIDIParser midiParser = null;
+    public static AutoTransposer autoTransposer = null;
     public static NoteColourConverter noteColourConverter = null;
     private JPanel contentPane = null;
     private JScrollPane spKeyEditor;
@@ -61,6 +56,7 @@ extends JFrame {
     private JSpinner spinnerSpeed;
     private JLabel lblVolume;
     private JSlider sliderVolume;
+    private JButton btnAutoTranspose;
     private JButton btnScreenshot;
     private JButton btnPlay;
     private JButton btnStop;
@@ -189,7 +185,6 @@ extends JFrame {
             }
         });
 
-
         GroupLayout gl_layeredPane = new GroupLayout(layeredPane);
         gl_layeredPane.setHorizontalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.LEADING)
@@ -218,7 +213,10 @@ extends JFrame {
         							.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
         								.addComponent(lblSpeed, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
         								.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-        						.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)))
+        						.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
+        						.addGroup(gl_layeredPane.createSequentialGroup()
+        							.addGap(10)
+        							.addComponent(btnAutoTranspose))))
         				.addGroup(gl_layeredPane.createSequentialGroup()
         					.addContainerGap()
         					.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)))
@@ -229,8 +227,10 @@ extends JFrame {
         		.addGroup(gl_layeredPane.createSequentialGroup()
         			.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
         			.addGap(4)
-        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
-        			.addGap(8)
+        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(btnAutoTranspose, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+        			.addGap(15)
         			.addComponent(sliderTime, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addGroup(gl_layeredPane.createParallelGroup(Alignment.TRAILING)
@@ -269,9 +269,46 @@ extends JFrame {
     }
 
     private void initButtons() {
+        this.initButtonAutoTranspose();
         this.initButtonScreenshot();
         this.initButtonPlay();
         this.initButtonStop();
+    }
+
+    private void initButtonAutoTranspose() {
+        String defaultText = "Auto Transpose";
+        btnAutoTranspose = new JButton(defaultText);
+        btnAutoTranspose.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnAutoTranspose.setEnabled(false);
+                btnAutoTranspose.setText("Please Wait...");
+
+                SwingWorker<Void, Void> autoTransposeWorker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        int recommendedTranspose = autoTransposer.autoTranspose();
+                        spinnerSpeed_1.setValue(recommendedTranspose);
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        btnAutoTranspose.setText(defaultText);
+                        btnAutoTranspose.setEnabled(true);
+                    }
+                };
+
+                autoTransposeWorker.execute();
+            }
+        });
+
+
+        btnAutoTranspose.setIcon(new ImageIcon(getClass().getResource("/images/script_gear.png")));
+        btnAutoTranspose.setForeground(Color.GRAY);
+        btnAutoTranspose.setEnabled(false);
+        btnAutoTranspose.setBackground(Color.GRAY);
     }
 
     private void initButtonScreenshot() {
@@ -554,7 +591,7 @@ extends JFrame {
             }
         };
         this.tpKeyEditor.setBackground(Color.DARK_GRAY);
-        this.tpKeyEditor.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
+        this.tpKeyEditor.setContentType("text/html; charset=UTF-16");
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, 12));
         this.tpKeyEditor.setEnabled(false);
         this.spKeyEditor = new JScrollPane();
@@ -563,9 +600,10 @@ extends JFrame {
         this.spKeyEditor.setViewportView(this.tpKeyEditor);
         this.wordWrapOn();
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, this.currentFontSize));
-        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023!" + " (" + version + ")" + " \r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nCamera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ )\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
+        this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023!" + " (" + version + ")" + " \r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nScript Gear, Camera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ ). Auto transpose based on brianops1 algorithm.\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
                 "\r\n------------------------------------------------------\r\n\r\nWhats New:\r\n\r\n" +
                 "● Transpose function" +
+                "\r\n● Auto Transpose function" +
                 "\r\n● Screenshot function" +
                 "\r\n● Filtering file results as you type when searching to select your midi." +
                 "\r\n● Adjusted theme color to make coloured notes easier to read."
@@ -925,6 +963,7 @@ extends JFrame {
             @Override
             public void done() {
                 JFrameMIDIPianoSheetCreator.this.tpKeyEditor.setText(JFrameMIDIPianoSheetCreator.this.midiParser.getParsedData());
+                autoTransposer = new AutoTransposer(JFrameMIDIPianoSheetCreator.this.midiParser.getParsedData());
                 dialogOnScreenKeyboard.setText(JFrameMIDIPianoSheetCreator.this.midiParser.getParsedData());
                 JFrameMIDIPianoSheetCreator.this.noteColourConverter = new NoteColourConverter(JFrameMIDIPianoSheetCreator.this.tpKeyEditor.getStyledDocument(), JFrameMIDIPianoSheetCreator.this.midiParser.getEventTriggerTime(), JFrameMIDIPianoSheetCreator.this.midiParser.getQuarterNote());
                 if (dialogTrackImport.isColourise()) {
@@ -938,6 +977,7 @@ extends JFrame {
                 JFrameMIDIPianoSheetCreator.this.midiPlayer = new MIDIPlayer(new File(JFrameMIDIPianoSheetCreator.this.dirFileName));
                 JFrameMIDIPianoSheetCreator.this.midiPlayer.setVolume(JFrameMIDIPianoSheetCreator.this.sliderVolume.getValue());
                 JFrameMIDIPianoSheetCreator.this.midiPlayer.setInstrument(JFrameMIDIPianoSheetCreator.this.currentPatchNum);
+                JFrameMIDIPianoSheetCreator.this.btnAutoTranspose.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.btnScreenshot.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.btnPlay.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.btnPlay.setText("Play");
