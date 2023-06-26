@@ -930,6 +930,8 @@ extends JFrame {
                             JFrameMIDIPianoSheetCreator.this.progressBar.setIndeterminate(false);
                         }
                     } else {
+                        spinnerSpeed_1.setValue(0);
+
                         SwingWorker midiParserWorker = JFrameMIDIPianoSheetCreator.this.setupSwingWorkerMIDIParse(file);
                         if (!dialogPreferences.isCustomMeasure()) {
                             JFrameMIDIPianoSheetCreator.this.wordWrapOn();
