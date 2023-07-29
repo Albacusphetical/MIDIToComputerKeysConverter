@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 public class MIDIParser {
     private static final int NOTE_ON = 144;
     private static final int NOTE_OFF = 128;
+    private static final String outOfRangeOctaveDivider = ".";
     public static final int TIME_SIGNATURE = 88;
     private String completeNotes = "";
     private Sequencer sequencer = null;
@@ -51,6 +52,8 @@ public class MIDIParser {
     private String upperKeys = "";
     private String lowerKeys = "";
     private String numericKeys = "";
+    private String outOfRangeLowOctaveKeys = "";
+    private String outOfRangeHighOctaveKeys = "";
     private String otherKeys = "";
 
     public MIDIParser(File file) {
@@ -127,7 +130,7 @@ public class MIDIParser {
                 }
             }
             if (currentMidiNumbers.size() == 1) {
-                char currentKey = keyConverter.convertMidiToKeyboard((Integer)currentMidiNumbers.get(0)).charAt(0);
+                String currentKey = keyConverter.convertMidiToKeyboard((Integer)currentMidiNumbers.get(0));
                 currentKeyNotes = String.valueOf(currentKeyNotes) + currentKey;
             }
             if (currentMidiNumbers.size() > 1) {
@@ -162,6 +165,8 @@ public class MIDIParser {
             this.numericKeys = "";
             this.lowerKeys = "";
             this.upperKeys = "";
+            this.outOfRangeLowOctaveKeys = "";
+            this.outOfRangeHighOctaveKeys = "";
         }
         currentMidiNumbers = null;
         System.out.println();
@@ -267,6 +272,8 @@ public class MIDIParser {
             this.numericKeys = "";
             this.lowerKeys = "";
             this.upperKeys = "";
+            this.outOfRangeLowOctaveKeys = "";
+            this.outOfRangeHighOctaveKeys = "";
             this.eventTriggerTime.add(entry.getKey());
             this.eventTriggerNote.add(currentNotes);
         }
@@ -280,16 +287,35 @@ public class MIDIParser {
         return this.tmMidiParsedData;
     }
 
-    private void addKey(char keyToAdd) {
-        if (Character.isUpperCase(keyToAdd)) {
+    private void addKey(String keyToAdd) {
+        // special key
+        if (keyToAdd.length() > 1) {
+            // special unicode character, out of range note
+            if (keyConverter.isSpecialLowOctaveNote(keyToAdd)) {
+                this.outOfRangeLowOctaveKeys = this.outOfRangeLowOctaveKeys + keyToAdd;
+            }
+            else if (keyConverter.isSpecialHighOctaveNote(keyToAdd)) {
+                this.outOfRangeHighOctaveKeys = this.outOfRangeHighOctaveKeys + keyToAdd;
+            }
+
+            return;
+        }
+
+        // normal key
+        char key = keyToAdd.charAt(0);
+        if (Character.isUpperCase(key)) {
             this.upperKeys = String.valueOf(this.upperKeys) + keyToAdd;
-        } else if (Character.isLowerCase(keyToAdd)) {
+        } else if (Character.isLowerCase(key)) {
             this.lowerKeys = String.valueOf(this.lowerKeys) + keyToAdd;
-        } else if (Character.isDigit(keyToAdd)) {
+        } else if (Character.isDigit(key)) {
             this.numericKeys = String.valueOf(this.numericKeys) + keyToAdd;
         } else {
             this.otherKeys = String.valueOf(this.otherKeys) + keyToAdd;
         }
+    }
+
+    private String getOutOfRangeOctaveDivider(String outOfRangeKeys) {
+        return outOfRangeKeys.length() > 0 ? outOfRangeOctaveDivider : "";
     }
 
     private String convertMidiNumToKeys(ArrayList<Integer> MIDINumbers, Integer transpose) {
@@ -297,20 +323,22 @@ public class MIDIParser {
         if (MIDINumbers.size() > 1) {
             Collections.sort(MIDINumbers);
             for (int x = 0; x <= MIDINumbers.size() - 1; ++x) {
-                char currentKey = keyConverter.convertMidiToKeyboard(MIDINumbers.get(x) + transpose).charAt(0);
+                String currentKey = keyConverter.convertMidiToKeyboard(MIDINumbers.get(x) + transpose);
+                char currentKeyChar = currentKey.charAt(0);
+
                 this.addKey(currentKey);
                 if (x != MIDINumbers.size() - 1) continue;
-                sortedKeys = Character.isUpperCase(currentKey) || !Character.isLetterOrDigit(currentKey) ? String.valueOf(this.numericKeys) + this.lowerKeys + this.otherKeys + this.upperKeys : (Character.isLowerCase(currentKey) ? String.valueOf(this.otherKeys) + this.upperKeys + this.numericKeys + this.lowerKeys : String.valueOf(this.otherKeys) + this.upperKeys + this.numericKeys + this.lowerKeys);
+                sortedKeys = Character.isUpperCase(currentKeyChar) || !Character.isLetterOrDigit(currentKeyChar) ? this.outOfRangeLowOctaveKeys + getOutOfRangeOctaveDivider(outOfRangeLowOctaveKeys) + String.valueOf(this.numericKeys) + this.lowerKeys + this.otherKeys + this.upperKeys + getOutOfRangeOctaveDivider(outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys: (this.outOfRangeLowOctaveKeys + getOutOfRangeOctaveDivider(outOfRangeLowOctaveKeys) + String.valueOf(this.otherKeys) + this.upperKeys + this.numericKeys + this.lowerKeys + getOutOfRangeOctaveDivider(outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys);
             }
         } else {
-            char currentKey = keyConverter.convertMidiToKeyboard(MIDINumbers.get(0) + transpose).charAt(0);
+            String currentKey = keyConverter.convertMidiToKeyboard(MIDINumbers.get(0) + transpose);
             sortedKeys = String.valueOf(currentKey);
         }
         return sortedKeys;
     }
 
     private String formatBrackets(String currentNotes) {
-        currentNotes = currentNotes.length() > 1 ? "[" + currentNotes + "] " : String.valueOf(currentNotes) + " ";
+        currentNotes = currentNotes.length() > 1 && !KeyConverter.specialKeys.contains(currentNotes) ? "[" + currentNotes + "] " : String.valueOf(currentNotes) + " ";
         return currentNotes;
     }
 
@@ -333,6 +361,8 @@ public class MIDIParser {
             this.numericKeys = "";
             this.lowerKeys = "";
             this.upperKeys = "";
+            this.outOfRangeLowOctaveKeys = "";
+            this.outOfRangeHighOctaveKeys = "";
             this.eventTriggerTime.add(entry.getKey());
             this.eventTriggerNote.add(currentNotes);
         }

@@ -55,7 +55,7 @@ extends NoteValue {
         AttributeSet orange = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 128, 0));
         AttributeSet lightRed = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 151, 151));
         AttributeSet red = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 51, 51));
-        AttributeSet darkRed = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(153, 0, 0));
+        AttributeSet darkRed = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(215, 0, 0));
         for (long currentTrigger : this.eventTriggerTime) {
             elementIndex = this.eventTriggerTime.indexOf(currentTrigger);
             if (elementIndex + 1 > this.eventTriggerTime.size() - 1) continue;

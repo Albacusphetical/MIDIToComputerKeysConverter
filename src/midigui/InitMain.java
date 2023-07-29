@@ -34,7 +34,7 @@
 package midigui;
 
 import midigui.JFrameMIDIPianoSheetCreator;
-import org.pushingpixels.radiance.theming.api.skin.RadianceGraphiteLookAndFeel;
+import org.pushingpixels.radiance.theming.api.skin.*;
 
 import java.awt.EventQueue;
 import javax.swing.*;

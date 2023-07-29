@@ -12,6 +12,21 @@ public class AutoTransposer {
         this.str = str;
 
         // for digify
+        keyMap.put("𝟏", -15);
+        keyMap.put("𝟐", -14);
+        keyMap.put("𝟑", -13);
+        keyMap.put("𝟒", -12);
+        keyMap.put("𝟓", -11);
+        keyMap.put("𝟔", -10);
+        keyMap.put("𝟕", -9);
+        keyMap.put("𝟴", -8);
+        keyMap.put("𝟵", -7);
+        keyMap.put("𝟎", -6);
+        keyMap.put("𝑸", -5);
+        keyMap.put("𝑾", -4);
+        keyMap.put("𝑬", -3);
+        keyMap.put("𝓡", -2);
+        keyMap.put("𝑻", -1);
         keyMap.put("1", 1);
         keyMap.put("!", 2);
         keyMap.put("2", 3);
@@ -73,8 +88,35 @@ public class AutoTransposer {
         keyMap.put("B", 59);
         keyMap.put("n", 60);
         keyMap.put("m", 61);
+        keyMap.put("𝒀", 62);
+        keyMap.put("𝑼", 63);
+        keyMap.put("𝑰", 64);
+        keyMap.put("𝑶", 65);
+        keyMap.put("𝑷", 66);
+        keyMap.put("𝘼", 67);
+        keyMap.put("𝑺", 68);
+        keyMap.put("𝑫", 69);
+        keyMap.put("𝑭", 70);
+        keyMap.put("𝑮", 71);
+        keyMap.put("𝑯", 72);
+        keyMap.put("𝑱", 73);
 
         // for undigify, above but in reverse
+        keyMap.put(-15, "𝟏");
+        keyMap.put(-14, "𝟐");
+        keyMap.put(-13, "𝟑");
+        keyMap.put(-12, "𝟒");
+        keyMap.put(-11, "𝟓");
+        keyMap.put(-10, "𝟔");
+        keyMap.put(-9, "𝟕");
+        keyMap.put(-8, "𝟴");
+        keyMap.put(-7, "𝟵");
+        keyMap.put(-6, "𝟎");
+        keyMap.put(-5, "𝑸");
+        keyMap.put(-4, "𝑾");
+        keyMap.put(-3, "𝑬");
+        keyMap.put(-2, "𝓡");
+        keyMap.put(-1, "𝑻");
         keyMap.put(1, "1");
         keyMap.put(2, "!");
         keyMap.put(3, "2");
@@ -136,6 +178,18 @@ public class AutoTransposer {
         keyMap.put(59, "B");
         keyMap.put(60, "n");
         keyMap.put(61, "m");
+        keyMap.put(62, "𝒀");
+        keyMap.put(63, "𝑼");
+        keyMap.put(64, "𝑰");
+        keyMap.put(65, "𝑶");
+        keyMap.put(66, "𝑷");
+        keyMap.put(67, "𝘼");
+        keyMap.put(68, "𝑺");
+        keyMap.put(69, "𝑫");
+        keyMap.put(70, "𝑭");
+        keyMap.put(71, "𝑮");
+        keyMap.put(72, "𝑯");
+        keyMap.put(73, "𝑱");
     }
 
     private Integer digify(String key) {
@@ -143,7 +197,7 @@ public class AutoTransposer {
     }
 
     private String undigify(Integer digit) {
-        if (digit < 1 || digit > 61) {
+        if (digit < -15 || digit > 73) {
             return "";
         } else {
             return (String) keyMap.getOrDefault(digit, "?");
