@@ -104,7 +104,9 @@ extends JFrame {
     private JMenuItem mntmOnscreenPiano;
     private JMenu mnFile;
     private JLabel lblTranspose;
-    private JSpinner spinnerSpeed_1;
+    public static JSpinner spinnerTranspose;
+    private JLabel lblMeasuresPerLine;
+    public static JSpinner spinnerMeasuresPerLine;
 
     static {
         dialogAbout = null;
@@ -165,13 +167,13 @@ extends JFrame {
 
         lblTranspose = new JLabel("Transpose:");
 
-        spinnerSpeed_1 = new JSpinner();
-        spinnerSpeed_1.setModel(new SpinnerNumberModel(0, -12, 12, 1));
-        spinnerSpeed_1.setEnabled(false);
-        this.spinnerSpeed_1.addChangeListener(new ChangeListener() {
+        spinnerTranspose = new JSpinner();
+        spinnerTranspose.setModel(new SpinnerNumberModel(0, -12, 12, 1));
+        spinnerTranspose.setEnabled(false);
+        this.spinnerTranspose.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent evt) {
-                midiParser.changeTranspose(midiParser.getTmMidiParsedData(), (Integer) JFrameMIDIPianoSheetCreator.this.spinnerSpeed_1.getValue());
+                midiParser.reparse(midiParser.getTmMidiParsedData(), (Integer) JFrameMIDIPianoSheetCreator.this.spinnerTranspose.getValue());
                 tpKeyEditor.setText(midiParser.getParsedData());
 
                 if (dialogTrackImport.isColourise()) {
@@ -185,49 +187,72 @@ extends JFrame {
             }
         });
 
+        lblMeasuresPerLine = new JLabel("Measures Per Line:");
+
+        spinnerMeasuresPerLine = new JSpinner();
+        spinnerMeasuresPerLine.setModel(new SpinnerNumberModel(dialogPreferences.getMeasures(), 1, 10, 1));
+        spinnerMeasuresPerLine.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                midiParser.setMeasurePerLine((Integer) spinnerMeasuresPerLine.getValue());
+                midiParser.reparse(midiParser.getTmMidiParsedData(), (Integer) JFrameMIDIPianoSheetCreator.this.spinnerTranspose.getValue());
+                tpKeyEditor.setText(midiParser.getParsedData());
+                tpKeyEditor.setStyledDocument(JFrameMIDIPianoSheetCreator.this.noteColourConverter.ColouriseNotes());
+                tpKeyEditor.setCaretPosition(0);
+            }
+        });
+        spinnerMeasuresPerLine.setEnabled(false);
+
         GroupLayout gl_layeredPane = new GroupLayout(layeredPane);
         gl_layeredPane.setHorizontalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.LEADING)
         		.addGroup(gl_layeredPane.createSequentialGroup()
+        			.addGap(4)
         			.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
+        				.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
         				.addGroup(gl_layeredPane.createSequentialGroup()
-        					.addGap(4)
+        					.addGroup(gl_layeredPane.createParallelGroup(Alignment.TRAILING)
+        						.addGroup(gl_layeredPane.createSequentialGroup()
+        							.addComponent(btnPlay, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
+        							.addGap(15)
+        							.addComponent(lblTranspose)
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(spinnerTranspose, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+        							.addPreferredGap(ComponentPlacement.UNRELATED)
+        							.addComponent(sliderVolume, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+        							.addGap(15))
+        						.addGroup(gl_layeredPane.createSequentialGroup()
+        							.addComponent(lblVolume)
+        							.addGap(41)))
         					.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
-        						.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
-        						.addGroup(gl_layeredPane.createSequentialGroup()
-        							.addGroup(gl_layeredPane.createParallelGroup(Alignment.TRAILING)
-        								.addGroup(gl_layeredPane.createSequentialGroup()
-        									.addComponent(btnPlay, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
-        									.addPreferredGap(ComponentPlacement.RELATED)
-        									.addComponent(btnStop, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
-        									.addGap(15)
-        									.addComponent(lblTranspose)
-        									.addPreferredGap(ComponentPlacement.RELATED)
-        									.addComponent(spinnerSpeed_1, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-        									.addPreferredGap(ComponentPlacement.UNRELATED)
-        									.addComponent(sliderVolume, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
-        									.addGap(15))
-        								.addGroup(gl_layeredPane.createSequentialGroup()
-        									.addComponent(lblVolume)
-        									.addGap(41)))
-        							.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
-        								.addComponent(lblSpeed, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
-        								.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-        						.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
-        						.addGroup(gl_layeredPane.createSequentialGroup()
-        							.addGap(10)
-        							.addComponent(btnAutoTranspose))))
+        						.addComponent(lblSpeed, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        				.addComponent(sliderTime, GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
         				.addGroup(gl_layeredPane.createSequentialGroup()
-        					.addContainerGap()
-        					.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)))
+        					.addGap(10)
+        					.addComponent(btnAutoTranspose)))
         			.addContainerGap())
+        		.addGroup(gl_layeredPane.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED, 257, Short.MAX_VALUE)
+        			.addComponent(lblMeasuresPerLine)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(spinnerMeasuresPerLine, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+        			.addGap(35))
         );
         gl_layeredPane.setVerticalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.TRAILING)
         		.addGroup(gl_layeredPane.createSequentialGroup()
-        			.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
-        			.addGap(4)
-        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+        			.addGroup(gl_layeredPane.createParallelGroup(Alignment.LEADING)
+        				.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+        				.addGroup(gl_layeredPane.createParallelGroup(Alignment.BASELINE)
+        					.addComponent(lblMeasuresPerLine)
+        					.addComponent(spinnerMeasuresPerLine, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addComponent(btnAutoTranspose, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
         			.addGap(15)
@@ -246,7 +271,7 @@ extends JFrame {
         						.addComponent(sliderVolume, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
         						.addGroup(gl_layeredPane.createParallelGroup(Alignment.BASELINE)
         							.addComponent(lblTranspose)
-        							.addComponent(spinnerSpeed_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        							.addComponent(spinnerTranspose, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
         						.addComponent(spinnerSpeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
         			.addGap(10))
         );
@@ -288,7 +313,7 @@ extends JFrame {
                     @Override
                     protected Void doInBackground() throws Exception {
                         int recommendedTranspose = autoTransposer.autoTranspose();
-                        spinnerSpeed_1.setValue(recommendedTranspose);
+                        spinnerTranspose.setValue(recommendedTranspose);
 
                         return null;
                     }
@@ -602,11 +627,12 @@ extends JFrame {
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, this.currentFontSize));
         this.tpKeyEditor.setText("Welcome to MIDI to Computer Keys Converter 2023!" + " (" + version + ")" + " \r\n\u266b\r\nThis program was originally created for Garry's Mod's \"Playable Piano\" Addon (by MacDGuy) from MIDI files:\r\nhttp://steamcommunity.com/sharedfiles/filedetails/?id=104548572\r\nand Virtual Piano ( virtualpiano.net )\r\n\r\n------------------------------------------------------\r\nProgrammed in Java using Eclipse Luna IDE, with WindowBuilder (GUI) and IntelliJ IDEA.\r\nSource code and this software is free and open source, and is under GNU GPL v3 license.\r\nOpening of Jar file permitted (Unencrypted and Unobfuscated). Written by Little Cute Lion, 2014. Modified by Albacusphetical, 2023. \r\n\r\nScript Gear, Camera, Play and Stop button Silk Icons are created by Mark James under Creative Commons Attribution 2.5 License. \r\n( http://www.famfamfam.com/lab/icons/silk/ ). Auto transpose based on brianops1 algorithm.\r\n\r\nNote! This software is still in development and has incomplete features.\r\n\r\nEnjoy!" +
                 "\r\n------------------------------------------------------\r\n\r\nWhats New:\r\n\r\n" +
-                "● Transpose function" +
+                "● 88-key support" +
+                "\r\n● Transpose function" +
                 "\r\n● Auto Transpose function" +
                 "\r\n● Screenshot function" +
                 "\r\n● Filtering file results as you type when searching to select your midi." +
-                "\r\n● Adjusted theme color to make coloured notes easier to read."
+                "\r\n● Adjusted colors to make coloured notes easier to read."
         );
         this.tpKeyEditor.setCaretPosition(0);
     }
@@ -912,7 +938,8 @@ extends JFrame {
                         dialogTrackImport.setVisible(true);
                         if (dialogTrackImport.getSelectedButton() == 1) {
                             JFrameMIDIPianoSheetCreator.this.progressBar.setIndeterminate(false);
-                            spinnerSpeed_1.setValue(0);
+                            spinnerTranspose.setValue(0);
+                            spinnerMeasuresPerLine.setValue(dialogPreferences.getMeasures());
 
                             System.out.println();
                             System.out.println("Loading " + JFrameMIDIPianoSheetCreator.this.openFileName);
@@ -930,7 +957,8 @@ extends JFrame {
                             JFrameMIDIPianoSheetCreator.this.progressBar.setIndeterminate(false);
                         }
                     } else {
-                        spinnerSpeed_1.setValue(0);
+                        spinnerTranspose.setValue(0);
+                        spinnerMeasuresPerLine.setValue(dialogPreferences.getMeasures());
 
                         SwingWorker midiParserWorker = JFrameMIDIPianoSheetCreator.this.setupSwingWorkerMIDIParse(file);
                         if (!dialogPreferences.isCustomMeasure()) {
@@ -991,7 +1019,8 @@ extends JFrame {
                 JFrameMIDIPianoSheetCreator.this.sliderTime.setMinimum(0);
                 JFrameMIDIPianoSheetCreator.this.sliderTime.setValue(0);
                 JFrameMIDIPianoSheetCreator.this.spinnerSpeed.setEnabled(true);
-                JFrameMIDIPianoSheetCreator.this.spinnerSpeed_1.setEnabled(true);
+                JFrameMIDIPianoSheetCreator.this.spinnerTranspose.setEnabled(true);
+                JFrameMIDIPianoSheetCreator.this.spinnerMeasuresPerLine.setEnabled(true);
             }
         };
         return midiParserWorker;

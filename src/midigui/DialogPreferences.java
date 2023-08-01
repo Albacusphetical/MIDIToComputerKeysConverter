@@ -195,6 +195,12 @@ extends JDialog {
             public void actionPerformed(ActionEvent arg0) {
                 DialogPreferences.this.setVisible(false);
                 DialogPreferences.this.dispose();
+                JFrameMIDIPianoSheetCreator.spinnerMeasuresPerLine.setValue(getMeasures());
+                JFrameMIDIPianoSheetCreator.midiParser.setMeasurePerLine(getMeasures());
+                JFrameMIDIPianoSheetCreator.midiParser.reparse(JFrameMIDIPianoSheetCreator.midiParser.getTmMidiParsedData(), (Integer) JFrameMIDIPianoSheetCreator.spinnerTranspose.getValue());
+                JFrameMIDIPianoSheetCreator.tpKeyEditor.setText(JFrameMIDIPianoSheetCreator.midiParser.getParsedData());
+                JFrameMIDIPianoSheetCreator.tpKeyEditor.setStyledDocument(JFrameMIDIPianoSheetCreator.noteColourConverter.ColouriseNotes());
+                JFrameMIDIPianoSheetCreator.tpKeyEditor.setCaretPosition(0);
             }
         });
         okButton.setActionCommand("OK");

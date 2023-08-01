@@ -255,7 +255,7 @@ public class MIDIParser {
         System.out.println();
     }
 
-    public void changeTranspose(TreeMap<Long, ArrayList<Integer>> rawData, Integer transpose) {
+    public void reparse(TreeMap<Long, ArrayList<Integer>> rawData, Integer transpose) {
         // reset
         this.currentMeasure = this.measureLength;
         this.eventTriggerNote.clear();
