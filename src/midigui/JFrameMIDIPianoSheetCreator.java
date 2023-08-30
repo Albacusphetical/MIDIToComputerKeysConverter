@@ -107,6 +107,8 @@ extends JFrame {
     public static JSpinner spinnerTranspose;
     private JLabel lblMeasuresPerLine;
     public static JSpinner spinnerMeasuresPerLine;
+    private JLabel lblBeatsPerMeasure;
+    public static JSpinner spinnerBeatsPerMeasure;
 
     static {
         dialogAbout = null;
@@ -203,6 +205,22 @@ extends JFrame {
         });
         spinnerMeasuresPerLine.setEnabled(false);
 
+        lblBeatsPerMeasure = new JLabel("Beats Per Measure:");
+
+        spinnerBeatsPerMeasure = new JSpinner();
+        spinnerBeatsPerMeasure.setModel(new SpinnerNumberModel(4, 1, 100, 1));
+        spinnerBeatsPerMeasure.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                midiParser.setBeatsPerMeasure((Integer) spinnerBeatsPerMeasure.getValue());
+                midiParser.reparse(midiParser.getTmMidiParsedData(), (Integer) JFrameMIDIPianoSheetCreator.this.spinnerTranspose.getValue());
+                tpKeyEditor.setText(midiParser.getParsedData());
+                tpKeyEditor.setStyledDocument(JFrameMIDIPianoSheetCreator.this.noteColourConverter.ColouriseNotes());
+                tpKeyEditor.setCaretPosition(0);
+            }
+        });
+        spinnerBeatsPerMeasure.setEnabled(false);
+
         GroupLayout gl_layeredPane = new GroupLayout(layeredPane);
         gl_layeredPane.setHorizontalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.LEADING)
@@ -237,11 +255,15 @@ extends JFrame {
         		.addGroup(gl_layeredPane.createSequentialGroup()
         			.addContainerGap()
         			.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
-        			.addPreferredGap(ComponentPlacement.RELATED, 257, Short.MAX_VALUE)
+        			.addPreferredGap(ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
+        			.addComponent(lblBeatsPerMeasure)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(spinnerBeatsPerMeasure, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+        			.addGap(18)
         			.addComponent(lblMeasuresPerLine)
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addComponent(spinnerMeasuresPerLine, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-        			.addGap(35))
+        			.addGap(18))
         );
         gl_layeredPane.setVerticalGroup(
         	gl_layeredPane.createParallelGroup(Alignment.TRAILING)
@@ -250,9 +272,11 @@ extends JFrame {
         				.addComponent(btnScreenshot, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
         				.addGroup(gl_layeredPane.createParallelGroup(Alignment.BASELINE)
         					.addComponent(lblMeasuresPerLine)
-        					.addComponent(spinnerMeasuresPerLine, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        					.addComponent(spinnerMeasuresPerLine, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        					.addComponent(lblBeatsPerMeasure)
+        					.addComponent(spinnerBeatsPerMeasure, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
         			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
+        			.addComponent(spKeyEditor, GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addComponent(btnAutoTranspose, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
         			.addGap(15)
@@ -999,6 +1023,8 @@ extends JFrame {
                 if (dialogTrackImport.isColourise()) {
                     JFrameMIDIPianoSheetCreator.this.tpKeyEditor.setStyledDocument(JFrameMIDIPianoSheetCreator.this.noteColourConverter.ColouriseNotes());
                 }
+                JFrameMIDIPianoSheetCreator.spinnerBeatsPerMeasure.setValue(JFrameMIDIPianoSheetCreator.midiParser.getBeatsPerMeasure());
+
                 JFrameMIDIPianoSheetCreator.this.tpKeyEditor.setCaretPosition(0);
                 JFrameMIDIPianoSheetCreator.this.tpKeyEditor.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.progressBar.setIndeterminate(false);
@@ -1021,6 +1047,7 @@ extends JFrame {
                 JFrameMIDIPianoSheetCreator.this.spinnerSpeed.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.spinnerTranspose.setEnabled(true);
                 JFrameMIDIPianoSheetCreator.this.spinnerMeasuresPerLine.setEnabled(true);
+                JFrameMIDIPianoSheetCreator.this.spinnerBeatsPerMeasure.setEnabled(true);
             }
         };
         return midiParserWorker;

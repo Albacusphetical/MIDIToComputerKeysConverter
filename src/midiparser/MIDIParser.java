@@ -174,7 +174,7 @@ public class MIDIParser {
         System.out.println("Hidden for now, refer to textPane");
         System.out.println();
         System.out.println("Parsing Complete");
-        this.setTimeSignature();
+        this.setTimeSignature(false);
         System.out.println();
         System.out.println("eventTriggerTime: " + this.eventTriggerTime.size());
         for (int i = 0; i < this.eventTriggerTime.size() - 1; ++i) {
@@ -187,7 +187,7 @@ public class MIDIParser {
         System.out.println();
         System.out.println("retrieveMidiData()");
         this.getTimeSignature();
-        this.setTimeSignature();
+        this.setTimeSignature(false);
         this.tmMidiParsedData = new TreeMap();
         System.out.println("Selected Track Indexesss : " + Arrays.toString(selectedTracks));
         int trackNumber = 0;
@@ -257,6 +257,7 @@ public class MIDIParser {
 
     public void reparse(TreeMap<Long, ArrayList<Integer>> rawData, Integer transpose) {
         // reset
+        this.setTimeSignature(true);
         this.currentMeasure = this.measureLength;
         this.eventTriggerNote.clear();
         this.eventTriggerTime.clear();
@@ -314,8 +315,8 @@ public class MIDIParser {
         }
     }
 
-    private String getOutOfRangeOctaveDivider(String outOfRangeKeys) {
-        return outOfRangeKeys.length() > 0 ? outOfRangeOctaveDivider : "";
+    private String addBarForSpecialNotes(String specialLowOctave, String specialHighOctave) {
+        return specialLowOctave.length() > 0 || specialHighOctave.length() > 0 ? "|" : "";
     }
 
     private String convertMidiNumToKeys(ArrayList<Integer> MIDINumbers, Integer transpose) {
@@ -328,7 +329,7 @@ public class MIDIParser {
 
                 this.addKey(currentKey);
                 if (x != MIDINumbers.size() - 1) continue;
-                sortedKeys = Character.isUpperCase(currentKeyChar) || !Character.isLetterOrDigit(currentKeyChar) ? this.outOfRangeLowOctaveKeys + getOutOfRangeOctaveDivider(outOfRangeLowOctaveKeys) + String.valueOf(this.numericKeys) + this.lowerKeys + this.otherKeys + this.upperKeys + getOutOfRangeOctaveDivider(outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys: (this.outOfRangeLowOctaveKeys + getOutOfRangeOctaveDivider(outOfRangeLowOctaveKeys) + String.valueOf(this.otherKeys) + this.upperKeys + this.numericKeys + this.lowerKeys + getOutOfRangeOctaveDivider(outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys);
+                sortedKeys = Character.isUpperCase(currentKeyChar) || !Character.isLetterOrDigit(currentKeyChar) ? this.outOfRangeLowOctaveKeys + addBarForSpecialNotes(this.outOfRangeLowOctaveKeys, this.outOfRangeHighOctaveKeys) + String.valueOf(this.numericKeys) + this.lowerKeys + this.otherKeys + this.upperKeys + addBarForSpecialNotes(this.outOfRangeLowOctaveKeys, this.outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys: (this.outOfRangeLowOctaveKeys + addBarForSpecialNotes(this.outOfRangeLowOctaveKeys, this.outOfRangeHighOctaveKeys) + String.valueOf(this.otherKeys) + this.upperKeys + this.numericKeys + this.lowerKeys + addBarForSpecialNotes(this.outOfRangeLowOctaveKeys, this.outOfRangeHighOctaveKeys) + this.outOfRangeHighOctaveKeys);
             }
         } else {
             String currentKey = keyConverter.convertMidiToKeyboard(MIDINumbers.get(0) + transpose);
@@ -338,11 +339,12 @@ public class MIDIParser {
     }
 
     private String formatBrackets(String currentNotes) {
-        currentNotes = currentNotes.length() > 1 && !KeyConverter.specialKeys.contains(currentNotes) ? "[" + currentNotes + "] " : String.valueOf(currentNotes) + " ";
+        currentNotes = currentNotes.length() > 1 && !KeyConverter.specialKeys.contains(currentNotes) ? "[" + currentNotes + "] " : keyConverter.isSpecialLowOctaveNote(currentNotes) || keyConverter.isSpecialHighOctaveNote(currentNotes) ? outOfRangeOctaveDivider + currentNotes + " " : String.valueOf(currentNotes) + " ";
         return currentNotes;
     }
 
     private String formatTime(long time, String currentNotes) {
+        // places new line *before a new measure* if we are past the previous measure
         if ((float)time >= this.currentMeasure) {
             this.currentMeasure += this.measureLength;
             currentNotes = "\r\n" + currentNotes;
@@ -373,11 +375,11 @@ public class MIDIParser {
         }
     }
 
-    private void setTimeSignature() {
+    private void setTimeSignature(boolean isCustom) {
         if (this.strTimeSignatureInfo != null) {
             System.out.println("MIDI MetaMessage Time Signature detected: ");
             System.out.println(this.strTimeSignatureInfo);
-        } else {
+        } else if (!isCustom) {
             System.out.println("MIDI has no Time Signature MetaMessage!! Defaulting to 4/4");
             this.beatsPerMeasure = 4;
             this.noteValueInMeasure = 4;
@@ -585,8 +587,8 @@ public class MIDIParser {
 
     public void setMeasurePerLine(int measureMultiplier) {
         this.measureMultiplier = measureMultiplier;
-        this.getTimeSignature();
-        this.setTimeSignature();
+//        this.getTimeSignature();
+//        this.setTimeSignature(true);
     }
 
     public int getTracks() {
@@ -596,5 +598,14 @@ public class MIDIParser {
     public int getQuarterNote() {
         return this.sequence.getResolution();
     }
+
+    public int getBeatsPerMeasure() {
+        return beatsPerMeasure;
+    }
+
+    public void setBeatsPerMeasure(int beatsPerMeasure) {
+        this.beatsPerMeasure = beatsPerMeasure;
+    }
+
 }
 
