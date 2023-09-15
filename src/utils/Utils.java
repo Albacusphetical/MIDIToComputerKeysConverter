@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.File;
+import java.util.List;
 
 public class Utils {
     public static final String midi = "midi";
@@ -15,6 +16,29 @@ public class Utils {
             ext = s.substring(i + 1).toLowerCase();
         }
         return ext;
+    }
+
+    public static int getLineNumberOfCharacterIndex(int charIndex, String text) {
+        List<String> lines = List.of(text.split("\n"));
+
+        int currentLnum = 0;
+        int currentCharIndex = 0;
+        for (String line : lines) {
+            for (Character character : line.toCharArray()) {
+                if (currentCharIndex == charIndex + 1) {
+                    break;
+                }
+                currentCharIndex++;
+            }
+
+            if (currentCharIndex == charIndex + 1) {
+                break;
+            }
+
+            currentLnum++;
+        }
+
+        return currentLnum;
     }
 }
 

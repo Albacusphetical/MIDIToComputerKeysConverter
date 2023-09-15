@@ -8,6 +8,8 @@ import midiparser.MIDIParser;
 import midiparser.NoteColourConverter;
 import midiplayer.MIDIPlayer;
 import utils.FileExtensionFilter;
+import utils.Utils;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -37,6 +39,10 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class JFrameMIDIPianoSheetCreator
 extends JFrame {
@@ -109,6 +115,8 @@ extends JFrame {
     public static JSpinner spinnerMeasuresPerLine;
     private JLabel lblBeatsPerMeasure;
     public static JSpinner spinnerBeatsPerMeasure;
+    private JPopupMenu popupMenu;
+    private JMenuItem mntmAddSectionMenuItem;
 
     static {
         dialogAbout = null;
@@ -659,6 +667,26 @@ extends JFrame {
                 "\r\n● Adjusted colors to make coloured notes easier to read."
         );
         this.tpKeyEditor.setCaretPosition(0);
+
+        popupMenu = new JPopupMenu();
+        addPopup(tpKeyEditor, popupMenu);
+
+        JMenuItem mntmOpenInBrowserMenuItem = new JMenuItem("Open In Browser");
+        popupMenu.add(mntmOpenInBrowserMenuItem);
+
+        JMenuItem mntmCopyAsImageMenuItem = new JMenuItem("Copy As Image");
+        popupMenu.add(mntmCopyAsImageMenuItem);
+
+        mntmAddSectionMenuItem = new JMenuItem("Add Section");
+        popupMenu.add(mntmAddSectionMenuItem);
+        mntmAddSectionMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Integer startOfSectionLineNum = Utils.getLineNumberOfCharacterIndex(tpKeyEditor.getSelectionStart(), tpKeyEditor.getText());
+                Integer endOfSectionLineNum = Utils.getLineNumberOfCharacterIndex(tpKeyEditor.getSelectionEnd(), tpKeyEditor.getText());
+                TreeMap<Long, ArrayList<Integer>> sectionMidiData = midiParser.getMidiNotesFromLines(startOfSectionLineNum, endOfSectionLineNum);
+            }
+        });
     }
 
     private void wordWrapOn() {
@@ -670,9 +698,12 @@ extends JFrame {
         this.tpKeyEditor.setFont(new Font(this.currentFont, 0, this.currentFontSize));
         this.spKeyEditor.setViewportView(this.tpKeyEditor);
         this.tpKeyEditor.setText(previousText);
+
+        addPopup(tpKeyEditor, popupMenu);
     }
 
     private void wordWrapOff() {
+
         String previousText = this.tpKeyEditor.getText();
         this.tpKeyEditor = new JTextPane(){
 
@@ -687,6 +718,8 @@ extends JFrame {
         this.tpKeyEditor.setEnabled(true);
         this.spKeyEditor.setViewportView(this.tpKeyEditor);
         this.tpKeyEditor.setText(previousText);
+
+        addPopup(tpKeyEditor, popupMenu);
     }
 
     private void initMenuBar() {
@@ -1368,5 +1401,22 @@ extends JFrame {
         this.mntmVerdana.setSelected(false);
         this.mntmSegoeUi.setSelected(false);
     }
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }
 

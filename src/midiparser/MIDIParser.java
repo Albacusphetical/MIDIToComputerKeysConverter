@@ -3,17 +3,15 @@
  */
 package midiparser;
 
+import com.sun.source.tree.Tree;
 import midigui.JFrameMIDIPianoSheetCreator;
 import midiparser.KeyConverter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.lang.reflect.Array;
+import java.util.*;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -33,6 +31,9 @@ public class MIDIParser {
     private static final String outOfRangeOctaveDivider = ".";
     public static final int TIME_SIGNATURE = 88;
     private String completeNotes = "";
+    private ArrayList<SheetSection> sheetSections = new ArrayList<>();
+    private Integer parsingLineNum = 0;
+    private HashMap<Integer, TreeMap<Long, ArrayList<Integer>>> midiNotesPerLine = new HashMap<>();
     private Sequencer sequencer = null;
     private Sequence sequence = null;
     private static KeyConverter keyConverter = new KeyConverter();
@@ -57,6 +58,8 @@ public class MIDIParser {
     private String otherKeys = "";
 
     public MIDIParser(File file) {
+        SheetSection.idCount = 0;
+        midiNotesPerLine.put(0, new TreeMap<Long, ArrayList<Integer>>());
         try {
             this.fileName = file.getName().substring(0, file.getName().length() - 4);
             this.sequence = MidiSystem.getSequence(file);
@@ -251,12 +254,14 @@ public class MIDIParser {
                 System.out.println("Channel : " + sm.getChannel());
             }
         }
+
         this.parseData(this.tmMidiParsedData);
         System.out.println();
     }
 
     public void reparse(TreeMap<Long, ArrayList<Integer>> rawData, Integer transpose) {
         // reset
+        parsingLineNum = 0;
         this.setTimeSignature(true);
         this.currentMeasure = this.measureLength;
         this.eventTriggerNote.clear();
@@ -349,12 +354,25 @@ public class MIDIParser {
             this.currentMeasure += this.measureLength;
             currentNotes = "\r\n" + currentNotes;
         }
+
         return currentNotes;
     }
 
     private void parseData(TreeMap<Long, ArrayList<Integer>> rawData) {
+        // initially, the first section is the entire sheet
+        sheetSections.add(new SheetSection(rawData));
+
+        parsingLineNum = 0;
+
         String currentNotes = null;
         for (Map.Entry<Long, ArrayList<Integer>> entry : rawData.entrySet()) {
+            if ((float)entry.getKey() >= this.currentMeasure) {
+                parsingLineNum++;
+                midiNotesPerLine.put(parsingLineNum, new TreeMap<Long, ArrayList<Integer>>());
+            }
+
+            midiNotesPerLine.get(parsingLineNum).put(entry.getKey(), entry.getValue());
+
             currentNotes = this.convertMidiNumToKeys(entry.getValue(), 0);
             currentNotes = this.formatBrackets(currentNotes);
             currentNotes = this.formatTime(entry.getKey(), currentNotes);
@@ -368,6 +386,7 @@ public class MIDIParser {
             this.eventTriggerTime.add(entry.getKey());
             this.eventTriggerNote.add(currentNotes);
         }
+
         System.out.println();
         System.out.println("eventTriggerTime: " + this.eventTriggerTime.size());
         for (int i = 0; i < this.eventTriggerTime.size() - 1; ++i) {
@@ -607,5 +626,17 @@ public class MIDIParser {
         this.beatsPerMeasure = beatsPerMeasure;
     }
 
+    public HashMap<Integer, TreeMap<Long, ArrayList<Integer>>> getMidiNotesPerLine() {
+        return midiNotesPerLine;
+    }
+
+    public TreeMap<Long, ArrayList<Integer>> getMidiNotesFromLines(int line1, int line2) {
+        TreeMap<Long, ArrayList<Integer>> results = new TreeMap<>();
+        for (int i = line1; i <= line2; i++) {
+            results.putAll(midiNotesPerLine.get(i));
+        }
+
+        return results;
+    }
 }
 
